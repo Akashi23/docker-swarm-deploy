@@ -75,4 +75,4 @@
         advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
         join_token: "{{ worker_token }}"
         remote_addrs: "{{ hostvars['swarm-manager1']['ansible_default_ipv4']['address'] }}:2377"
-      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_workers"
+      when: inventory_hostname in groups["swarm_workers"]
