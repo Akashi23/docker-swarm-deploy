@@ -58,10 +58,10 @@ jobs:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: 'Use Terraform Output'
-        run: echo "${{ steps.terraform.outputs.tf_actions_output }}"
+        run: echo '${{ steps.terraform.outputs.tf_actions_output }}'
 
       - name: 'Export Terraform Output as Env'
-        run: NODE1=$(echo "${{ steps.terraform.outputs.tf_actions_output }}" | jq -r '.docker_swarm_1_ipv4.value.name') && NODE2=$(echo "${{ steps.terraform.outputs.tf_actions_output }}" | jq -r '.docker_swarm_2_ipv4.value.name')
+        run: NODE1=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_1_ipv4.value.name') && NODE2=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_2_ipv4.value.name')
 
       - name: 'Env Variables'
         run: echo $NODE1 && echo $NODE2
