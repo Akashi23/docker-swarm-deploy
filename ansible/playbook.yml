@@ -2,6 +2,9 @@
 - name: Configure
   hosts: docker
   remote_user: root
+  handlers:
+    - name: restart ufw
+      service: name=ufw state=restarted
   tasks: 
     - name: Install ufw
       apt: package=ufw state=present
