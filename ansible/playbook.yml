@@ -54,7 +54,7 @@
       shell: docker node ls
       register: swarm_status
       ignore_errors: true
-      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_managers"
+      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] == hostvars['swarm-manager1']['ansible_default_ipv4']['address']"
 
     - name: Initialize Docker Swarm
       docker_swarm:
@@ -62,12 +62,12 @@
         advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}" 
       when: swarm_status.rc != 0
       run_once: true
-      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_managers"
+      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] == hostvars['swarm-manager1']['ansible_default_ipv4']['address']"
 
     - name: Get the worker join-token
       shell: docker swarm join-token --quiet worker
       register: worker_token
-      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_managers"
+      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] == hostvars['swarm-manager1']['ansible_default_ipv4']['address']"
 
     - name: Add worker nodes
       docker_swarm:
