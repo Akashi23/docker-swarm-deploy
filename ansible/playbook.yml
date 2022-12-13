@@ -1,6 +1,7 @@
 ---
 - name: Configure
   hosts: docker
+  remote_user: root
   tasks: 
     - name: Install ufw
       apt: package=ufw state=present
@@ -33,6 +34,7 @@
 
 - name: manager
   hosts: swarm_managers
+  remote_user: root
   tasks: 
     - name: Check if Swarm has already been Initialized
       shell: docker node ls
@@ -53,6 +55,7 @@
 
 - name: worker
   hosts: swarm_workers
+  remote_user: root
   tasks: 
     - name: Add worker nodes
       docker_swarm:
