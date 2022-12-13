@@ -34,6 +34,9 @@
 
       notify:
         - restart ufw
+    
+    - name: Install python-docker
+      apt: package=python-docker state=present
 
 - name: manager
   hosts: swarm_managers
