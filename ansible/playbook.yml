@@ -69,7 +69,7 @@
       register: worker_token
       when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_managers"
 
-     - name: Add worker nodes
+    - name: Add worker nodes
       docker_swarm:
         state: join
         advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
