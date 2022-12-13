@@ -47,13 +47,14 @@
         name: docker
 
 - name: manager
-  hosts: swarm_managers
+  hosts: docker
   remote_user: root
   tasks: 
     - name: Check if Swarm has already been Initialized
       shell: docker node ls
       register: swarm_status
       ignore_errors: true
+    when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_managers"
 
     - name: Initialize Docker Swarm
       docker_swarm:
@@ -61,23 +62,17 @@
         advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}" 
       when: swarm_status.rc != 0
       run_once: true
+    when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_managers"
 
     - name: Get the worker join-token
       shell: docker swarm join-token --quiet worker
       register: worker_token
+    when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_managers"
 
-    - name: 'Set var'
-      set_fact:
-        worker_token_1: "{{ worker_token.stdout }}"
-
-
-- name: worker
-  hosts: swarm_workers
-  remote_user: root
-  tasks: 
-    - name: Add worker nodes
+     - name: Add worker nodes
       docker_swarm:
         state: join
         advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-        join_token: "{{ worker_token_1 }}"
+        join_token: "{{ worker_token }}"
         remote_addrs: "{{ hostvars['swarm-manager1']['ansible_default_ipv4']['address'] }}:2377"
+      when: "hostvars[inventory_hostname]['ansible_default_ipv4']['address'] in swarm_workers"
