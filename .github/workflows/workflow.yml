@@ -80,6 +80,9 @@ jobs:
       - name: 'PWD'
         run: pwd
 
+      - name: 'LS'
+        run: ls
+
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
         with:
@@ -88,7 +91,7 @@ jobs:
           # Optional, directory where playbooks live
           directory: ansible
           # Optional, SSH private key
-          key: ${{secrets.SSH_MACOS}}
+          key: ${{ secrets.SSH_MACOS }}
           # Optional, literal inventory file contents
           options: |
             --inventory inventory
