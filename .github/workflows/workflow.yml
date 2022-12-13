@@ -64,7 +64,7 @@ jobs:
         run: |
           NODE1=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_1_ipv4.value')
           NODE2=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_2_ipv4.value')
-          echo "$NODE1 swarm-node1" | tee -a /etc/hosts
-          echo "$NODE2 swarm-node2" | tee -a /etc/hosts
+          echo "$NODE1 swarm-node1" | sudo tee -a /etc/hosts
+          echo "$NODE2 swarm-node2" | sudo tee -a /etc/hosts
       - name: 'Cat'
         run: cat /etc/hosts
