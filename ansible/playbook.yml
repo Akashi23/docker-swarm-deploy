@@ -37,6 +37,7 @@
 
     - name: Update Repos
       shell: apt update
+      run_once: true
 
     - name: Install pip
       apt: package=python3-pip state=present
@@ -65,6 +66,10 @@
       shell: docker swarm join-token --quiet worker
       register: worker_token
 
+    - name: 'Set var'
+      set_fact:
+        worker_token: "{{ worker_token.stdout }}"
+
 
 - name: worker
   hosts: swarm_workers
@@ -74,5 +79,5 @@
       docker_swarm:
         state: join
         advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-        join_token: worker_token.stdout
+        join_token: "{{ worker_token }}"
         remote_addrs: "{{ hostvars['swarm-manager1']['ansible_default_ipv4']['address'] }}:2377"
