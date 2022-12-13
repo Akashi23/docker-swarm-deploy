@@ -34,7 +34,10 @@
 
       notify:
         - restart ufw
-    
+
+    - name: Install pip
+      apt: package=python3-pip state=present
+
     - name: Install Docker Module for Python
       pip:
         name: docker
