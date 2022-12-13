@@ -61,7 +61,10 @@ jobs:
         run: echo '${{ steps.terraform.outputs.tf_actions_output }}'
 
       - name: 'Export Terraform Output as Env'
-        run: NODE1=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_1_ipv4.value') && NODE2=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_2_ipv4.value')
-
-      - name: 'Env Variables'
-        run: echo $NODE1 && echo $NODE2
+        run: |
+          NODE1=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_1_ipv4.value')
+          NODE2=$(echo '${{ steps.terraform.outputs.tf_actions_output }}' | jq -r '.docker_swarm_2_ipv4.value')
+          echo "$NODE1 swarm-node1" | tee -a /etc/hosts
+          echo "$NODE2 swarm-node2" | tee -a /etc/hosts
+      - name: 'Cat'
+        run: cat /etc/hosts
