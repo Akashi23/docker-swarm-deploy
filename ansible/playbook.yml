@@ -1,0 +1,62 @@
+---
+- name: Configure
+  hosts: docker
+  tasks: 
+    - name: Install ufw
+      apt: package=ufw state=present
+
+    - name: Enable ufw logging
+      ufw: logging=on
+
+    - name: Configure ufw defaults
+      ufw: direction={{ item.direction }} policy={{ item.policy }}
+      with_items:
+        - { direction: 'incoming', policy: 'deny' }
+        - { direction: 'outgoing', policy: 'allow' }
+      notify:
+        - restart ufw
+
+    - name: Configure ufw rules
+      ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
+      with_items:
+        - { rule: 'limit', port: '{{ ssh_port | default("22") }}', proto: 'tcp' }
+        - { rule: 'allow', port: '80', proto: 'tcp' }
+        - { rule: 'allow', port: '443', proto: 'tcp' }
+        - { rule: 'allow', port: '2376', proto: 'tcp' }
+        - { rule: 'allow', port: '2377', proto: 'tcp' }
+        - { rule: 'allow', port: '7946', proto: 'tcp' }
+        - { rule: 'allow', port: '7946', proto: 'udp' }
+        - { rule: 'allow', port: '4789', proto: 'udp' }
+
+      notify:
+        - restart ufw
+
+- name: manager
+  hosts: swarm_managers
+  tasks: 
+    - name: Check if Swarm has already been Initialized
+      shell: docker node ls
+      register: swarm_status
+      ignore_errors: true
+
+    - name: Initialize Docker Swarm
+      docker_swarm:
+        state: present
+        default_addr_poll: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}" 
+      when: swarm_status.rc != 0
+      run_once: true
+
+    - name: Get the worker join-token
+      shell: docker swarm join-token --quiet worker
+      register: worker_token
+
+
+- name: worker
+  hosts: swarm_workers
+  tasks: 
+    - name: Add worker nodes
+      docker_swarm:
+        state: join
+        advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+        join_token: worker_token.stdout
+        remote_addrs: "{{ hostvars['swarm-manager1']['ansible_default_ipv4']['address'] }}:2377"
