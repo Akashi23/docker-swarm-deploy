@@ -58,4 +58,4 @@ jobs:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: 'Use Terraform Output'
-        run: echo ${{ steps.terraform.outputs.tf_actions_output }}
+        run: echo "${{ steps.terraform.outputs.tf_actions_output }}"
