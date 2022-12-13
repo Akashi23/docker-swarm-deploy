@@ -73,7 +73,7 @@
       docker_swarm:
         state: join
         advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-        join_token: "{{ worker_token['stdout'] }}"
+        join_token: "{{ hostvars['swarm-manager1']['worker_token']['stdout'] }}"
         remote_addrs: "{{ hostvars['swarm-manager1']['ansible_default_ipv4']['address'] }}:2377"
       when: inventory_hostname in groups["swarm_workers"]
 
