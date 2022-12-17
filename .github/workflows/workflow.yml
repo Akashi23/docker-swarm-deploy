@@ -75,7 +75,7 @@ jobs:
           NODE2=$(echo '${{ needs.deploy_terraform.outputs.terraform_output }}' | jq -r '.docker_swarm_2_ipv4.value')
           echo "$NODE1 swarm-node1" | sudo tee -a /etc/hosts
           echo "$NODE2 swarm-node2" | sudo tee -a /etc/hosts
-      - name: 'Export Terraform Output as Env to another job'
+      - name: 'Export docker config env to config'
         run: echo '$DOCKER_CONFIG' >> ./ansible/config.json
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
