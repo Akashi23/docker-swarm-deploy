@@ -97,7 +97,11 @@
       copy:
         src: config.json
         dest: .docker/config.json
-    - name: Docker login
-      shell: docker --config .docker login registry.digitalocean.com/akashi
-    - name: Up services
-      shell: docker compose up -d
+    - name: ls
+      shell: ls -la
+    - name: lss
+      shell: cd .docker
+    # - name: Docker login
+    #   shell: docker --config .docker login registry.digitalocean.com/akashi
+    # - name: Up services
+    #   shell: docker compose up -d
