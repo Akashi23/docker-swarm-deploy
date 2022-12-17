@@ -80,3 +80,14 @@
     - name: Print worker_token
       debug:
         msg: "{{ worker_token }} wtf: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+- name: Docker compose
+  hosts: swarm_managers
+  remote_user: root
+  tasks: 
+    - name: copy docker-compose.yml
+      copy:
+        src: docker-compose.yml
+        dest: docker-compose.yml
+    - name: Up services
+      shell: docker compose up -d

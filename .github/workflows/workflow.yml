@@ -31,60 +31,60 @@ jobs:
           tf_actions_working_dir: './terraform'
         env:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      - name: 'Terraform Destroy'
+      # - name: 'Terraform Destroy'
+      #   uses: hashicorp/terraform-github-actions@master
+      #   with:
+      #     tf_actions_version: 0.12.13
+      #     tf_actions_subcommand: 'destroy'
+      #     tf_actions_working_dir: './terraform'
+      #   env:
+      #     DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: 'Terraform Apply'
         uses: hashicorp/terraform-github-actions@master
         with:
           tf_actions_version: 0.12.13
-          tf_actions_subcommand: 'destroy'
+          tf_actions_subcommand: 'apply'
+          tf_actions_working_dir: './terraform'
+          args: '-refresh=true -auto-approve'
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: 'Terraform Output'
+        id: terraform
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.13
+          tf_actions_subcommand: 'output'
           tf_actions_working_dir: './terraform'
         env:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      # - name: 'Terraform Apply'
-      #   uses: hashicorp/terraform-github-actions@master
-      #   with:
-      #     tf_actions_version: 0.12.13
-      #     tf_actions_subcommand: 'apply'
-      #     tf_actions_working_dir: './terraform'
-      #     args: '-refresh=true -auto-approve'
-      #   env:
-      #     DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      # - name: 'Terraform Output'
-      #   id: terraform
-      #   uses: hashicorp/terraform-github-actions@master
-      #   with:
-      #     tf_actions_version: 0.12.13
-      #     tf_actions_subcommand: 'output'
-      #     tf_actions_working_dir: './terraform'
-      #   env:
-      #     DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: 'Use Terraform Output'
+        run: echo '${{ steps.terraform.outputs.tf_actions_output }}'
 
-      # - name: 'Use Terraform Output'
-      #   run: echo '${{ steps.terraform.outputs.tf_actions_output }}'
+  deploy-ansible:
+    name: Deploy Ansible
+    runs-on: ubuntu-latest
+    needs: deploy_terraform
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@master
+      - name: 'Export Terraform Output as Env to another job'
+        run: |
+          NODE1=$(echo '${{ needs.deploy_terraform.outputs.terraform_output }}' | jq -r '.docker_swarm_1_ipv4.value')
+          NODE2=$(echo '${{ needs.deploy_terraform.outputs.terraform_output }}' | jq -r '.docker_swarm_2_ipv4.value')
+          echo "$NODE1 swarm-node1" | sudo tee -a /etc/hosts
+          echo "$NODE2 swarm-node2" | sudo tee -a /etc/hosts
 
-  # deploy-ansible:
-  #   name: Deploy Ansible
-  #   runs-on: ubuntu-latest
-  #   needs: deploy_terraform
-  #   steps:
-  #     - name: 'Checkout'
-  #       uses: actions/checkout@master
-  #     - name: 'Export Terraform Output as Env to another job'
-  #       run: |
-  #         NODE1=$(echo '${{ needs.deploy_terraform.outputs.terraform_output }}' | jq -r '.docker_swarm_1_ipv4.value')
-  #         NODE2=$(echo '${{ needs.deploy_terraform.outputs.terraform_output }}' | jq -r '.docker_swarm_2_ipv4.value')
-  #         echo "$NODE1 swarm-node1" | sudo tee -a /etc/hosts
-  #         echo "$NODE2 swarm-node2" | sudo tee -a /etc/hosts
-
-  #     - name: Run playbook
-  #       uses: dawidd6/action-ansible-playbook@v2
-  #       with:
-  #         # Required, playbook filepath
-  #         playbook: playbook.yml
-  #         # Optional, directory where playbooks live
-  #         directory: ./ansible/
-  #         # Optional, SSH private key
-  #         key: ${{ secrets.SSH_MACOS }}
-  #         # Optional, literal inventory file contents
-  #         options: |
-  #           --inventory inventory
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          # Required, playbook filepath
+          playbook: playbook.yml
+          # Optional, directory where playbooks live
+          directory: ./ansible/
+          # Optional, SSH private key
+          key: ${{ secrets.SSH_MACOS }}
+          # Optional, literal inventory file contents
+          options: |
+            --inventory inventory
