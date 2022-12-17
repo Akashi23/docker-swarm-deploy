@@ -84,10 +84,20 @@
 - name: Docker compose
   hosts: swarm_managers
   remote_user: root
-  tasks: 
+  tasks:
     - name: copy docker-compose.yml
       copy:
         src: docker-compose.yml
         dest: docker-compose.yml
+    - name: Create docker folder
+      file:
+        path: .docker
+        state: directory
+    - name: Create docker config
+      copy:
+        src: config.json
+        dest: .docker/config.json
+    - name: Docker login
+      shell: docker --config .docker login registry.digitalocean.com/akashi
     - name: Up services
       shell: docker compose up -d
