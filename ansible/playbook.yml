@@ -110,7 +110,7 @@
     - debug:
         msg: "{{ cmd.stdout }}"
 
-    # - name: Docker login
-    #   shell: docker --config .docker login registry.digitalocean.com/akashi
-    # - name: Up services
-    #   shell: docker compose up -d
+    - name: Docker login
+      shell: docker --config .docker login registry.digitalocean.com/akashi
+    - name: Up services
+      shell: docker compose up -d

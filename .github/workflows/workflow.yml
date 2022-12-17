@@ -76,7 +76,7 @@ jobs:
           echo "$NODE1 swarm-node1" | sudo tee -a /etc/hosts
           echo "$NODE2 swarm-node2" | sudo tee -a /etc/hosts
       - name: 'Export docker config env to config'
-        run: echo '$DOCKER_CONFIG' >> ./ansible/config.json
+        run: echo ${{ secrets.DOCKER_CONFIG }} >> ./ansible/config.json
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
         with:
