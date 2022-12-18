@@ -3,6 +3,8 @@ version: '3.9'
 services:
   random:
     image: registry.digitalocean.com/akashi/random-api:latest
+    deploy:
+      replicas: 2
     ports:
       - '80:8080'
     environment:
