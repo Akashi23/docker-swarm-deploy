@@ -37,7 +37,6 @@
 
     - name: Update Repos
       shell: apt update
-      run_once: true
 
     - name: Install pip
       apt: package=python3-pip state=present
